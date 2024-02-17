@@ -7,6 +7,7 @@ from moviepy.editor import VideoFileClip
 from PIL import Image
 import openai
 import time
+import random
 import io
 import os
 import whisper
@@ -33,8 +34,8 @@ async def create_upload_file(file: UploadFile = File(...)):
     image = Image.open(io.BytesIO(contents))
 
     text = pytesseract.image_to_string(image)
-
-    return JSONResponse(content={"text": text})
+    response = client.embeddings.create(input=text, model="text-embedding-ada-002")
+    return JSONResponse(content={"text": text, "embedding": response.data[0].embedding})
 
 
 @app.post("/upload-video/")
@@ -56,10 +57,6 @@ async def create_upload_video(file: UploadFile = File(...)):
     os.remove(audio_path)
 
     return JSONResponse(content=generate_embeddings_for_segments(result, client))
-
-
-import time
-import random
 
 
 def generate_embeddings_for_segments(data, client):
@@ -100,5 +97,7 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     text_from_pages = loader.load_and_split()
     text = [page.page_content for page in text_from_pages]
+    text = " ".join(text)
+    response = client.embeddings.create(input=text, model="text-embedding-ada-002")
     os.remove(path)
-    return JSONResponse(content={"text": " ".join(text)})
+    return JSONResponse(content={"text": text, "embedding": response.data[0].embedding})
