@@ -1,32 +1,24 @@
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
-import { ThemeProvider } from "@/components/ThemeProvider"
-import Nav from "@/components/Nav";
+import ConvexClientProvider from "@/(components)/ConvexClientProvider";
+import "@/styles/globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-import ConvexClientProvider from "./ConvexClientProvider";
+const inter = Inter({ subsets: ["latin"] });
 
-import "./globals.css";
-
+export const metadata: Metadata = {
+  title: "Athena",
+  description: "The ai-powered cms of the future",
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${GeistMono.className} ${GeistSans.className}`}>
-        <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-            <ConvexClientProvider>
-              <Nav/>
-              {children}
-            </ConvexClientProvider>
-        </ThemeProvider>
+      <body className={inter.className}>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );
