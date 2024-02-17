@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, HTTPException
 from langchain_community.document_loaders import PyPDFLoader
 from fastapi.responses import JSONResponse
 import pytesseract
@@ -11,6 +11,7 @@ import io
 import os
 import whisper
 import httpx
+import fitz
 from llama_index.embeddings.together import TogetherEmbedding
 import together
 import json
@@ -120,21 +121,49 @@ def generate_embeddings_for_segments(data):
     return cleaned_data_array
 
 
+class PDFURL(BaseModel):
+    url: str
+
 @app.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...)):
-    path = f"temp_{file.filename}"
-    with open(path, "wb") as f:
-        contents = await file.read()
-        f.write(contents)
+async def upload_pdf(pdf_url: PDFURL):
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(pdf_url.url)
+            response.raise_for_status()
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=400, detail=f"Error fetching PDF from {pdf_url.url}: {str(exc)}")
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(status_code=exc.response.status_code, detail=f"Error fetching PDF from {pdf_url.url}: HTTP Status Code {exc.response.status_code}")
+        
+        pdf_path = "temp_document.pdf"
+        with open(pdf_path, "wb") as f:
+            f.write(response.content)
 
-    loader = PyPDFLoader(path)
+        text = ""
+        response = []
+        with fitz.open(pdf_path) as doc:
+            text = [page.get_text() for page in doc]
+            for tex in text:
+                attempt = 0
+                while True:
+                    try:
 
-    text_from_pages = loader.load_and_split()
-    text = [page.page_content for page in text_from_pages]
-    text = " ".join(text)
-    response = embed_model.get_text_embedding(text)
-    os.remove(path)
-    return JSONResponse(content={"text": text, "embedding": response})
+                        segment = embed_model.get_text_embedding(tex[:2000])
+                        response.append(segment)
+                        break
+                    except Exception as e:
+                        attempt += 1
+                        # wait_time = min(2**attempt + random.random(), 60)
+                        wait_time = 1
+                        print(
+                            f"Rate limit hit, waiting {wait_time:.2f} seconds before retrying..."
+                        )
+                        if attempt == 10:
+                            break
+                        time.sleep(wait_time)
+        os.remove(pdf_path)
+
+        return JSONResponse(content={"text": ' '.join(text), "embedding": response})
 
 
 class QuizRequest(BaseModel):
