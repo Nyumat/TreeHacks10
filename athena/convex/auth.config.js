@@ -2,7 +2,7 @@
 export default {
   providers: [
     {
-      domain: "https://exotic-moose-20.clerk.accounts.dev/",
+      domain: "https://exotic-moose-20.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],
