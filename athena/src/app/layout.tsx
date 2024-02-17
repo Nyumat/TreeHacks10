@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
+import Nav from "@/components/Nav";
+
 import ConvexClientProvider from "./ConvexClientProvider";
 
 import "./globals.css";
@@ -18,7 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${GeistMono.className} ${GeistSans.className}`}>
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <ConvexClientProvider>
+          <Nav/>
+          {children}
+        </ConvexClientProvider>
       </body>
     </html>
   );
