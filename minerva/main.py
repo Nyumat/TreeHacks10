@@ -5,13 +5,14 @@ from fastapi.responses import JSONResponse
 import pytesseract
 from moviepy.editor import VideoFileClip
 from PIL import Image
-from openai import OpenAI
+import openai
+import time
 import io
 import os
 import whisper
 
 load_dotenv()
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 app = FastAPI()
 
@@ -49,12 +50,40 @@ async def create_upload_video(file: UploadFile = File(...)):
 
     model = whisper.load_model("base")
     result = model.transcribe(audio_path)
-
+    
     clip.close()
     os.remove(video_path)
     os.remove(audio_path)
 
-    return JSONResponse(content=result)
+    return JSONResponse(content= generate_embeddings_for_segments(result, client))
+
+import time
+import random
+
+def generate_embeddings_for_segments(data, client):
+    embeddings = []
+    for segment in data["segments"]:
+        attempt = 0
+        while True:
+            try:
+                response = client.embeddings.create(
+                    input=segment['text'],
+                    model="text-embedding-ada-002"
+                )
+                segment['embedding'] = response.data[0].embedding
+                embeddings.append(segment)
+                break
+            except openai.RateLimitError:
+                attempt += 1
+                wait_time = min(2 ** attempt + random.random(), 60)
+                print(f"Rate limit hit, waiting {wait_time:.2f} seconds before retrying...")
+                if attempt == 10:
+                    break
+                time.sleep(wait_time)
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                break
+    return embeddings
 
 
 @app.post("/upload-pdf/")
@@ -69,4 +98,4 @@ async def upload_pdf(file: UploadFile = File(...)):
     text_from_pages = loader.load_and_split()
     text = [page.page_content for page in text_from_pages]
     os.remove(path)
-    return JSONResponse(content={"text": text})
+    return JSONResponse(content={"text": ' '.join(text)})
