@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from langchain_community.document_loaders import PyPDFLoader
 from fastapi.responses import JSONResponse
 import pytesseract
@@ -10,6 +10,7 @@ import time
 import io
 import os
 import whisper
+import httpx
 from llama_index.embeddings.together import TogetherEmbedding
 import together
 import json
@@ -40,15 +41,27 @@ def read_item(item_id: int, query_param: str = None):
     return {"item_id": item_id, "query_param": query_param}
 
 
+class ImageURL(BaseModel):
+    url: str
+
 @app.post("/upload-image/")
-async def create_upload_file(file: UploadFile = File(...)):
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents))
+async def create_upload_file(image_url: ImageURL):
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(image_url.url)
+            response.raise_for_status()
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=400, detail=f"Error fetching image from {image_url.url}: {str(exc)}")
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(status_code=exc.response.status_code, detail=f"Error fetching image from {image_url.url}: HTTP Status Code {exc.response.status_code}")
 
-    text = pytesseract.image_to_string(image)
-    response = embed_model.get_text_embedding(text)
-    return JSONResponse(content={"text": text, "embedding": response})
+        image = Image.open(io.BytesIO(response.content))
 
+        text = pytesseract.image_to_string(image)
+
+        response = embed_model.get_text_embedding(text)
+
+        return JSONResponse(content={"text": text, "embedding": response})
 
 @app.post("/upload-video/")
 async def create_upload_video(file: UploadFile = File(...)):
@@ -90,7 +103,13 @@ def generate_embeddings_for_segments(data):
                 if attempt == 10:
                     break
                 time.sleep(wait_time)
-    return embeddings
+    keys_to_remove = ['temperature', 'avg_logprob', 'compression_ratio', 'no_speech_prob', 'tokens']
+
+    cleaned_data_array = [
+        {key: value for key, value in element.items() if key not in keys_to_remove}
+        for element in embeddings
+    ]
+    return cleaned_data_array
 
 
 @app.post("/upload-pdf/")
