@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${GeistSans}`}>{children}</body>
+      <body className={`${GeistMono.className} ${GeistSans.className}`}>{children}</body>
     </html>
   );
 }
