@@ -1,0 +1,24 @@
+user : {
+    groups[
+        {
+            name: "Math",
+            content ; [
+                {
+                    transcript w timestqpmw,
+                    embedding
+                }
+            ]
+        },
+        {
+            name: "Math",
+            content ; [
+                {
+                    transcript w timestqpmw,
+                    embedding
+                }
+            ]
+        },
+
+    ]
+
+}
