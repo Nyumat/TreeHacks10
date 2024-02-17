@@ -24,12 +24,7 @@ embed_model = TogetherEmbedding(
 )
 together.api_key = os.environ["TOGETHER_API_KEY"]
 
-# quiz_model = TogetherEmbedding(
-#     model_name="Qwen/Qwen1.5-72B-Chat",
-#     api_key=os.environ["TOEGETHER_API_KEY"],
-# )
 app = FastAPI()
-
 
 @app.get("/")
 def read_root():
@@ -63,23 +58,36 @@ async def create_upload_file(image_url: ImageURL):
 
         return JSONResponse(content={"text": text, "embedding": response})
 
+class VideoURL(BaseModel):
+    url: str
+
 @app.post("/upload-video/")
-async def create_upload_video(file: UploadFile = File(...)):
-    video_path = f"temp_{file.filename}"
-    with open(video_path, "wb") as f:
-        contents = await file.read()
-        f.write(contents)
+async def create_upload_video(video_url: VideoURL):
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(video_url.url)
+            response.raise_for_status()
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=400, detail=f"Error fetching video from {video_url.url}: {str(exc)}")
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(status_code=exc.response.status_code, detail=f"Error fetching video from {video_url.url}: HTTP Status Code {exc.response.status_code}")
 
-    clip = VideoFileClip(video_path)
-    audio_path = video_path + ".mp3"
-    clip.audio.write_audiofile(audio_path)
+        video_path = f"temp_video.mp4"
+        with open(video_path, "wb") as f:
+            f.write(response.content)
 
-    model = whisper.load_model("base")
-    result = model.transcribe(audio_path)
+    try:
+        clip = VideoFileClip(video_path)
+        audio_path = video_path + ".mp3"
+        clip.audio.write_audiofile(audio_path)
 
-    clip.close()
-    os.remove(video_path)
-    os.remove(audio_path)
+        model = whisper.load_model("base")
+        result = model.transcribe(audio_path)
+
+    finally:
+        clip.close()
+        os.remove(video_path)
+        os.remove(audio_path)
 
     return JSONResponse(content=generate_embeddings_for_segments(result))
 
