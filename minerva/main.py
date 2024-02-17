@@ -7,18 +7,26 @@ from moviepy.editor import VideoFileClip
 from PIL import Image
 import openai
 import time
-import random
 import io
 import os
 import whisper
 from llama_index.embeddings.together import TogetherEmbedding
+import together
+import json
+from pydantic import BaseModel
 
 load_dotenv()
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 embed_model = TogetherEmbedding(
-    model_name="togethercomputer/m2-bert-80M-8k-retrieval",
-    api_key=os.environ["TOEGETHER_API_KEY"],
+    model_name="WhereIsAI/UAE-Large-V1",
+    api_key=os.environ["TOGETHER_API_KEY"],
 )
+together.api_key = os.environ["TOGETHER_API_KEY"]
+
+# quiz_model = TogetherEmbedding(
+#     model_name="Qwen/Qwen1.5-72B-Chat",
+#     api_key=os.environ["TOEGETHER_API_KEY"],
+# )
 app = FastAPI()
 
 
@@ -100,3 +108,24 @@ async def upload_pdf(file: UploadFile = File(...)):
     response = embed_model.get_text_embedding(text)
     os.remove(path)
     return JSONResponse(content={"text": text, "embedding": response})
+
+
+class QuizRequest(BaseModel):
+    text: str
+
+
+@app.post("/generate-quiz/")
+def generate_quiz(request: QuizRequest):
+    prompt = f"{request.text}\n\n create a json schema about the above with the following: {{\nquestion:  ['Right Answer', 'Wrong', 'Wrong', 'Wrong']\n}}"
+    output = together.Complete.create(
+        prompt=prompt,
+        model="Qwen/Qwen1.5-72B-Chat",
+        max_tokens=2560,
+        temperature=0.8,
+        top_k=60,
+        top_p=0.6,
+        repetition_penalty=1.1,
+        stop=["<human>", "\n\n"],
+    )
+    print(output)
+    return JSONResponse(json.loads(output["output"]["choices"][0]["text"].strip()))
