@@ -50,15 +50,17 @@ async def create_upload_video(file: UploadFile = File(...)):
 
     model = whisper.load_model("base")
     result = model.transcribe(audio_path)
-    
+
     clip.close()
     os.remove(video_path)
     os.remove(audio_path)
 
-    return JSONResponse(content= generate_embeddings_for_segments(result, client))
+    return JSONResponse(content=generate_embeddings_for_segments(result, client))
+
 
 import time
 import random
+
 
 def generate_embeddings_for_segments(data, client):
     embeddings = []
@@ -67,16 +69,17 @@ def generate_embeddings_for_segments(data, client):
         while True:
             try:
                 response = client.embeddings.create(
-                    input=segment['text'],
-                    model="text-embedding-ada-002"
+                    input=segment["text"], model="text-embedding-ada-002"
                 )
-                segment['embedding'] = response.data[0].embedding
+                segment["embedding"] = response.data[0].embedding
                 embeddings.append(segment)
                 break
             except openai.RateLimitError:
                 attempt += 1
-                wait_time = min(2 ** attempt + random.random(), 60)
-                print(f"Rate limit hit, waiting {wait_time:.2f} seconds before retrying...")
+                wait_time = min(2**attempt + random.random(), 60)
+                print(
+                    f"Rate limit hit, waiting {wait_time:.2f} seconds before retrying..."
+                )
                 if attempt == 10:
                     break
                 time.sleep(wait_time)
@@ -98,4 +101,4 @@ async def upload_pdf(file: UploadFile = File(...)):
     text_from_pages = loader.load_and_split()
     text = [page.page_content for page in text_from_pages]
     os.remove(path)
-    return JSONResponse(content={"text": ' '.join(text)})
+    return JSONResponse(content={"text": " ".join(text)})
