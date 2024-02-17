@@ -2,19 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background: 239 51% 99%;
+    --foreground: 239 74% 0%;
+    --muted: 239 34% 93%;
+    --muted-foreground: 239 2% 35%;
+    --popover: 239 51% 99%;
+    --popover-foreground: 239 74% 0%;
+    --card: 239 51% 99%;
+    --card-foreground: 239 74% 0%;
+    --border: 239 11% 91%;
+    --input: 239 11% 91%;
+    --primary: 239 88% 75%;
+    --primary-foreground: 239 88% 15%;
+    --secondary: 239 15% 92%;
+    --secondary-foreground: 239 15% 32%;
+    --accent: 239 23% 86%;
+    --accent-foreground: 239 23% 26%;
+    --destructive: 8 89% 21%;
+    --destructive-foreground: 8 89% 81%;
+    --ring: 239 88% 75%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 239 30% 0%;
+    --foreground: 239 18% 98%;
+    --muted: 239 34% 7%;
+    --muted-foreground: 239 2% 65%;
+    --popover: 239 30% 0%;
+    --popover-foreground: 239 18% 98%;
+    --card: 239 30% 0%;
+    --card-foreground: 239 18% 98%;
+    --border: 239 11% 10%;
+    --input: 239 11% 10%;
+    --primary: 239 88% 75%;
+    --primary-foreground: 239 88% 15%;
+    --secondary: 239 8% 14%;
+    --secondary-foreground: 239 8% 74%;
+    --accent: 239 16% 22%;
+    --accent-foreground: 239 16% 82%;
+    --destructive: 8 89% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 239 88% 75%;
   }
 }
+
 
 body {
   color: rgb(var(--foreground-rgb));
