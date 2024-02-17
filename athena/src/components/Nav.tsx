@@ -1,10 +1,11 @@
 "use client";
 
-import Link from 'next/link'
 import { Button } from "@/components/ui/button";
 import { useConvexAuth } from 'convex/react';
-import { Vortex, ThreeDots } from 'react-loader-spinner';
-import { SignInButton, SignUpButton } from "@clerk/clerk-react";
+import { ThreeDots } from 'react-loader-spinner';
+import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
+import { ModeToggle } from './ModeToggle'
+
 
 const Nav = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
@@ -29,21 +30,15 @@ const Nav = () => {
         {
           !isAuthenticated && !isLoading && (
             <>
-              <SignInButton mode="modal" afterSignInUrl='/'> 
+              <SignInButton mode="modal" afterSignInUrl='/loggedIn'> 
                 <Button variant="outline">Sign In</Button>
               </SignInButton>
-              <SignUpButton mode="modal"> 
+              <SignUpButton mode="modal" afterSignUpUrl="/loggedIn"> 
                 <Button>Sign Up</Button>
               </SignUpButton>
             </>
           )
         }
-        {/* If the user is authenticated, show message */}
-        { isAuthenticated && !isLoading && (
-          <>
-            Hey
-          </>
-        )}
       </div>
     );
   }
@@ -52,9 +47,10 @@ const Nav = () => {
     <>
         <nav className="px-4 py-2">
             <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-                <SignInAndSignUpButtons />
-            </div>
+              <div className="flex gap-4 items-center">
+                  <SignInAndSignUpButtons />
+                  <ModeToggle />
+              </div>
             </div>
         </nav>       
     </>
