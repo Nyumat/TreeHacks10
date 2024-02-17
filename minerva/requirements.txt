@@ -1,0 +1,12 @@
+openai
+openai-whisper
+pdfminer
+pdf2image
+unstructured
+lanchain
+ffmpeg
+moviepy
+pytesseract
+fastapi
+uvicorn
+python-multipart

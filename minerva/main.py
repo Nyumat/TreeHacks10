@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile
+from langchain_community.document_loaders import PyPDFLoader
 from fastapi.responses import JSONResponse
 import pytesseract
 from moviepy.editor import VideoFileClip
@@ -54,3 +55,18 @@ async def create_upload_video(file: UploadFile = File(...)):
     os.remove(audio_path)
 
     return JSONResponse(content=result)
+
+
+@app.post("/upload-pdf/")
+async def upload_pdf(file: UploadFile = File(...)):
+    path = f"temp_{file.filename}"
+    with open(path, "wb") as f:
+        contents = await file.read()
+        f.write(contents)
+
+    loader = PyPDFLoader(path)
+
+    text_from_pages = loader.load_and_split()
+    text = [page.page_content for page in text_from_pages]
+    os.remove(path)
+    return JSONResponse(content={"text": text})
