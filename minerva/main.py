@@ -11,10 +11,14 @@ import random
 import io
 import os
 import whisper
+from llama_index.embeddings.together import TogetherEmbedding
 
 load_dotenv()
 client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-
+embed_model = TogetherEmbedding(
+    model_name="togethercomputer/m2-bert-80M-8k-retrieval",
+    api_key=os.environ["TOEGETHER_API_KEY"],
+)
 app = FastAPI()
 
 
@@ -34,8 +38,8 @@ async def create_upload_file(file: UploadFile = File(...)):
     image = Image.open(io.BytesIO(contents))
 
     text = pytesseract.image_to_string(image)
-    response = client.embeddings.create(input=text, model="text-embedding-ada-002")
-    return JSONResponse(content={"text": text, "embedding": response.data[0].embedding})
+    response = embed_model.get_text_embedding(text)
+    return JSONResponse(content={"text": text, "embedding": response})
 
 
 @app.post("/upload-video/")
@@ -56,33 +60,28 @@ async def create_upload_video(file: UploadFile = File(...)):
     os.remove(video_path)
     os.remove(audio_path)
 
-    return JSONResponse(content=generate_embeddings_for_segments(result, client))
+    return JSONResponse(content=generate_embeddings_for_segments(result))
 
 
-def generate_embeddings_for_segments(data, client):
+def generate_embeddings_for_segments(data):
     embeddings = []
     for segment in data["segments"]:
         attempt = 0
         while True:
             try:
-                response = client.embeddings.create(
-                    input=segment["text"], model="text-embedding-ada-002"
-                )
-                segment["embedding"] = response.data[0].embedding
+                segment["embedding"] = embed_model.get_text_embedding(segment["text"])
                 embeddings.append(segment)
                 break
-            except openai.RateLimitError:
+            except Exception as e:
                 attempt += 1
-                wait_time = min(2**attempt + random.random(), 60)
+                # wait_time = min(2**attempt + random.random(), 60)
+                wait_time = 1
                 print(
                     f"Rate limit hit, waiting {wait_time:.2f} seconds before retrying..."
                 )
                 if attempt == 10:
                     break
                 time.sleep(wait_time)
-            except Exception as e:
-                print(f"An unexpected error occurred: {e}")
-                break
     return embeddings
 
 
@@ -98,6 +97,6 @@ async def upload_pdf(file: UploadFile = File(...)):
     text_from_pages = loader.load_and_split()
     text = [page.page_content for page in text_from_pages]
     text = " ".join(text)
-    response = client.embeddings.create(input=text, model="text-embedding-ada-002")
+    response = embed_model.get_text_embedding(text)
     os.remove(path)
-    return JSONResponse(content={"text": text, "embedding": response.data[0].embedding})
+    return JSONResponse(content={"text": text, "embedding": response})
