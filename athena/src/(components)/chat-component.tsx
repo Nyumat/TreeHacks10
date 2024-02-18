@@ -6,6 +6,7 @@ import { ResizablePanel, ResizableHandle, ResizablePanelGroup } from "@/(compone
 import { Button } from "@/(components)//ui/button"
 import ReactPlayer from 'react-player'
 import { useState, ChangeEvent } from "react"
+import ChatBot from './ChatBot';
 
 
 export function ChatComponent() {
@@ -30,12 +31,12 @@ export function ChatComponent() {
         <div className="flex-1 flex items-center justify-center">
           <ResizablePanelGroup className="max-w-3xl w-full p-2 rounded-lg" direction="horizontal">
             <ResizablePanel defaultSize={200}>
-                  <ReactPlayer
-                    url={url}
-                    width="100%"
-                    height="400px"
-                  />
-              
+              <ReactPlayer
+                url={url}
+                width="100%"
+                height="400px"
+              />
+
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={0} />
@@ -61,6 +62,7 @@ export function ChatComponent() {
           <div className="grid gap-2">
             <div className="rounded-xl w-full h-full aspect-video">
               <span className="w-full aspect-video rounded-md bg-muted" />
+              <ChatBot />
             </div>
           </div>
         </div>
