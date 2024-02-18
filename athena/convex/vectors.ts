@@ -2,13 +2,15 @@
 
 import { ConvexVectorStore } from "@langchain/community/vectorstores/convex";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 import { v } from "convex/values";
 import { Document } from "langchain/document";
 import { CacheBackedEmbeddings } from "langchain/embeddings/cache_backed";
 import { ConvexKVStore } from "langchain/storage/convex";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { YoutubeTranscript } from "youtube-transcript";
-import { action, query } from "./_generated/server";
+import { action, query, internalAction } from "./_generated/server";
+import { internal } from "./_generated/api";
 
 interface TranscriptResponse {
   text: string;
@@ -34,11 +36,12 @@ export const fetchAndEmbedSingle = action({
         (d: TranscriptResponse) =>
           new Document({ pageContent: d.text, metadata: { offset: d.offset } })
       )
-    );
+    ); 
 
     const embeddings = new CacheBackedEmbeddings({
-      underlyingEmbeddings: new OpenAIEmbeddings({
-        openAIApiKey: process.env.API_KEY,
+      underlyingEmbeddings: new TogetherAIEmbeddings({
+        apiKey: process.env.TOGETHER_AI_API_KEY,
+        modelName: "togethercomputer/m2-bert-80M-8k-retrieval",
       }),
       documentEmbeddingStore: new ConvexKVStore({ ctx }),
     });
@@ -58,23 +61,3 @@ export const search = action({
     console.log(resultOne);
   },
 });
-
-export const testingTanz = action ({
-  args: {
-    query: v.string(),
-  }, 
-  handler: async (ctx, args) => {
-    const data = {
-      input: args.query,
-      model: "togethercomputer/m2-bert-80M-8k-retrieval"
-    }
-    const res = await fetch("https://api.together.xyz/v1/embeddings", {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.TOGETHER_API_KEY}`,},
-    }).then(response => response.json())
-    console.log(res);
-    return res;
-  },
-})
