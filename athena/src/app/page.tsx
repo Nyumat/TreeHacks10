@@ -1,3 +1,4 @@
+import MultipleSelectorControlled from "@/(components)/Selector";
 import { User, currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import Link from 'next/link';
@@ -12,8 +13,8 @@ export default async function Home() {
   let user: User | null = await currentUser();
   // Maybe we should turn this into the root of our dashboard? I'm too sleepy to think about it.
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between">
-      <section className="w-full py-24 md:py-24">
+    <main className="flex min-h-full flex-col items-center justify-between">
+      <section className="w-full py-48 md:py-48">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-2 text-center">
             <div className="space-y-4 lg:space-y-10">
@@ -29,8 +30,8 @@ export default async function Home() {
                 </span>
               </h1>
               <p className="text-sm  mx-auto max-w-[300px] md:max-w-md lg:max-w-2xl text-gray-500 md:text-lg dark:text-gray-400 mt-4 lg:text-2xl">
-                The CMS of the 21st century, powered by the latest in AI and
-                machine learning technology.{" "}
+                You give us the content you want. We make it accessible and
+                searchable.
               </p>
             </div>
           </div>
@@ -45,9 +46,28 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="w-full">
-        {/* TODO: Value Prop / Preview / Demo */}
-      </section>
+      <div className="flex justify-center">
+        <div className="arrow bounce" />
+      </div>
+
+      {user ? (
+        <section className="w-full pt-32 lg:pt-32 min-h-screen">
+          <div className="container px-4 md:px-6">
+            <h1 className="text-xl font-bold md:text-3xl lg:text-5xl dark:text-white leading-tight md:leading-10 text-center">
+              1. Select the Categories of Content
+            </h1>
+
+            <p className="my-8 text-center text-gray-800 md:text-lg dark:text-gray-400 space-y-2s">
+              Choose the type of content you want to upload. <br /> We'll take
+              care of the rest.
+            </p>
+
+            <div className="flex justify-center">
+              <MultipleSelectorControlled />
+            </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
