@@ -1,0 +1,24 @@
+{
+    "question1": [
+        "R1",
+        "Wrong1",
+        "Wrong2",
+        "Wrong3"
+    ],
+    "question2": [
+        "R2",
+        "Wrong1",
+        "Wrong2",
+        "Wrong4",
+        "Wrong5",
+        "Wrong3"
+    ],
+    "question3": [
+        "R3",
+        "Wrong1",
+        "Wrong8",
+        "Wrong4",
+        "Wrong5",
+        "Wrong3"
+    ]
+}

@@ -1,5 +1,6 @@
 import { User, currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
+import Link from 'next/link';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -33,6 +34,14 @@ export default async function Home() {
               </p>
             </div>
           </div>
+        </div>
+
+        <div>
+          <h1>Welcome to My Quiz App</h1>
+          <p>Click the button below to start the quiz!</p>
+          <Link href="/quiz">
+            Start Quiz
+          </Link>
         </div>
       </section>
 
