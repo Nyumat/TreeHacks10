@@ -28,7 +28,6 @@ export default defineSchema({
     last_name: v.optional(v.union(v.null(), v.string())),
     last_sign_in_at: v.union(v.null(), v.float64()),
     username: v.optional(v.union(v.null(), v.string())),
-
     documents: v.optional(v.array(v.id("documents"))),
   }).index("by_userId", ["id"]),
   documents: defineTable({
@@ -39,4 +38,16 @@ export default defineSchema({
     vectorField: "embedding",
     dimensions: 1536,
   }),
+  messages: defineTable({
+    userId: v.string(),
+    message: v.object({
+      type: v.string(),
+      data: v.object({
+        content: v.string(),
+        role: v.optional(v.string()),
+        name: v.optional(v.string()),
+        additional_kwargs: v.optional(v.any()),
+      }),
+    }),
+  }).index("byUserId", ["userId"]),
 });
