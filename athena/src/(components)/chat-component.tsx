@@ -5,63 +5,67 @@
 import { ResizablePanel, ResizableHandle, ResizablePanelGroup } from "@/(components)//ui/resizable"
 import { Button } from "@/(components)//ui/button"
 import ReactPlayer from 'react-player'
+import { useState, ChangeEvent } from "react"
 
 
 export function ChatComponent() {
+  const [url, setUrl] = useState<string>('https://www.youtube.com/watch?v=oVY3USJTidA&ab_channel=DailyDoseOfInternet')
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setUrl(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    console.log("URL submitted:", url);
+    // You can perform further actions here, like navigating to the URL or processing it in any way.
+  };
+
   return (
-    <div key="1" className="flex flex-col h-screen w-full lg:flex-row">
-      <div className="border-b lg:border-r w-full lg:w-[1040px] flex flex-col">
+    <div key="1" className="flex flex-col h-screen w-full lg:flex-row p-2">
+      <div className="lg:border-r w-full lg:w-[1040px] flex flex-col border-b">
         <div className="flex h-14 items-center px-4 border-b lg:border-b-0">
-          <div className="text-xl font-bold text-gray-900 dark:text-gray-50">Video Chat</div>
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-50 ">Video Chat</div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <ResizablePanelGroup className="max-w-3xl w-full p-2 rounded-lg border" direction="horizontal">
+          <ResizablePanelGroup className="max-w-3xl w-full p-2 rounded-lg" direction="horizontal">
             <ResizablePanel defaultSize={200}>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">Mute</Button>
-                    <Button size="sm" variant="outline" className="flex-1">Stop Video</Button>
-                  </div>
-                  <Button size="sm" variant="outline" className="flex-1">Share Screen</Button>
-                </div>
-                <div className="flex-1 flex items-center justify-center">
                   <ReactPlayer
-                    url="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+                    url={url}
                     width="100%"
-                    height="100%"
+                    height="400px"
                   />
-                </div>
-              </div>
+              
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={0} />
           </ResizablePanelGroup>
         </div>
       </div>
-      <div className="border-t lg:border-t-0 lg:border-l w-full lg:w-full flex flex-col">
-        <div className="flex-1 flex flex-col">
+      <div className="w-full lg:w-full flex flex-col gap-1">
+        <div className="flex-1 flex flex-col border rounded-sm">
           <div className="h-14 flex items-center px-4 border-b">
-            <form className="flex items-center w-full">
+
+            <form onSubmit={handleSubmit} className="flex items-center w-full">
               <input
                 className="flex-1 h-10 px-4 rounded-l-lg border-r-0 focus:outline-none"
                 placeholder="Enter video URL"
                 type="text"
+                value={url}
+                onChange={handleChange}
               />
-              <button type="submit" className="h-10 px-4 bg-gray-900 text-white rounded-r-lg border-l-0">Go</button>
+              <button type="submit" className="h-10 px-4 bg-gray-900 text-white rounded-r-lg">Go</button>
             </form>
+
           </div>
           <div className="grid gap-2">
-            <div className="rounded-xl border w-full aspect-video">
+            <div className="rounded-xl w-full h-full aspect-video">
               <span className="w-full aspect-video rounded-md bg-muted" />
             </div>
           </div>
         </div>
-        <div className="h-20 flex items-center px-4">
-          <div className="grid gap-2">
-            <div className="text-sm font-medium">What's the best way to get started with a new framework?</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">Posted by Sarah 2 minutes ago</div>
-          </div>
+        <div className="flex-1 flex flex-col border rounded-sm">
+
         </div>
       </div>
     </div>
