@@ -6,11 +6,15 @@ export const generateUploadUrl = mutation(async (ctx) => {
 });
 
 
-const addEmbedding = mutation({
-        args: { data: v.id("_storage"), embedding: v.array(v.float64())},
-        handler: async (ctx, args) => {
-            // Add the embedding to the database
-            const newTaskId = await ctx.db.insert("tasks", { text: args.text });
-            return newTaskId;
-        },
-      });
+export const addEmbedding = mutation({
+    args: { id: v.id("documents"), text: v.string(), embedding: v.array(v.float64())},
+    handler: async (ctx, args) => {
+        // Add the embedding to the database
+        const newTaskId = await ctx.db.insert("segments", { 
+            docId: args.id,
+            text: args.text,
+            embedding: args.embedding
+        });
+        return newTaskId;
+    },
+});
