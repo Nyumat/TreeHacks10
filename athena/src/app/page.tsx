@@ -1,6 +1,6 @@
+import { Dashboard } from "@/(components)/preview-dash";
 import { User, currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
-import { api } from "../../convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -37,7 +37,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="w-full py-24 md:py-24">
+      <section className="w-full">
         {/* TODO: Value Prop / Preview / Demo */}
       </section>
     </main>
