@@ -17,6 +17,7 @@ import type {
 import type * as clerk from "../clerk.js";
 import type * as http from "../http.js";
 import type * as langchain_db from "../langchain/db.js";
+import type * as messaging from "../messaging.js";
 import type * as users from "../users.js";
 import type * as vectors from "../vectors.js";
 
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   clerk: typeof clerk;
   http: typeof http;
   "langchain/db": typeof langchain_db;
+  messaging: typeof messaging;
   users: typeof users;
   vectors: typeof vectors;
 }>;
