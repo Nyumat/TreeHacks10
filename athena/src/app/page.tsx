@@ -37,13 +37,13 @@ export default async function Home() {
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <h1>Welcome to My Quiz App</h1>
           <p>Click the button below to start the quiz!</p>
           <Link href="/quiz">
             Start Quiz
           </Link>
-        </div>
+        </div> */}
       </section>
 
       <div className="flex justify-center">
