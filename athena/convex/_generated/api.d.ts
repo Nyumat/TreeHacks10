@@ -15,9 +15,10 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as clerk from "../clerk.js";
-import type * as documents from "../documents.js";
 import type * as http from "../http.js";
+import type * as langchain_db from "../langchain/db.js";
 import type * as users from "../users.js";
+import type * as vectors from "../vectors.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -29,9 +30,10 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   clerk: typeof clerk;
-  documents: typeof documents;
   http: typeof http;
+  "langchain/db": typeof langchain_db;
   users: typeof users;
+  vectors: typeof vectors;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

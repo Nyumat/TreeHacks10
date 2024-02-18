@@ -13,9 +13,11 @@ export const userValues = v.object({
   username: v.optional(v.union(v.null(), v.string())),
 });
 
-
-
 export default defineSchema({
+  cache: defineTable({
+    key: v.string(),
+    value: v.any(),
+  }).index("byKey", ["key"]),
   users: defineTable({
     banned: v.boolean(),
     created_at: v.float64(),
@@ -28,43 +30,13 @@ export default defineSchema({
     username: v.optional(v.union(v.null(), v.string())),
 
     documents: v.optional(v.array(v.id("documents"))),
-
   }).index("by_userId", ["id"]),
-
-
-  //Temp table to store the url of the file upload for the python server to access
   documents: defineTable({
-    title: v.string(),
-    genre: v.string(),
-
+    embedding: v.array(v.number()),
     text: v.string(),
-    docId: v.int64(), // id to the segmnents table
-    processed: v.boolean(), // whether segments have been extracted
-    isPrivate: v.optional(v.boolean()),
-
-    isVideo: v.boolean(),
-  })
-    .index("processed", ["processed"]) // used to find segments to process
-    .index("docId", ["docId"]), // used for uniqueness on insert
-
-  
-    //Temp table to store the url of the file upload for the python server to access
-    temp: defineTable({
-      documentUrl: v.string(),
-    })
-    .index("documentUrl", ["documentUrl"]), // used to find specific file
-
-
-  segments: defineTable({
-    docId: v.id("documents"),
-
-    seek: v.optional(v.int64()),
-    start: v.optional(v.float64()),
-    end: v.optional(v.float64()),
-
-    text: v.string(),
-    embedding: v.array(v.float64()),
-  })
-    .index("docId", ["docId"])
-    .vectorIndex("embedding", { vectorField: "embedding", dimensions: 1024 }),
+    metadata: v.any(),
+  }).vectorIndex("byEmbedding", {
+    vectorField: "embedding",
+    dimensions: 1536,
+  }),
 });
