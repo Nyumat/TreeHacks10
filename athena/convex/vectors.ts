@@ -8,7 +8,7 @@ import { CacheBackedEmbeddings } from "langchain/embeddings/cache_backed";
 import { ConvexKVStore } from "langchain/storage/convex";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { YoutubeTranscript } from "youtube-transcript";
-import { action } from "./_generated/server";
+import { action, query } from "./_generated/server";
 
 interface TranscriptResponse {
   text: string;
@@ -58,3 +58,23 @@ export const search = action({
     console.log(resultOne);
   },
 });
+
+export const testingTanz = action ({
+  args: {
+    query: v.string(),
+  }, 
+  handler: async (ctx, args) => {
+    const data = {
+      input: args.query,
+      model: "togethercomputer/m2-bert-80M-8k-retrieval"
+    }
+    const res = await fetch("https://api.together.xyz/v1/embeddings", {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.TOGETHER_API_KEY}`,},
+    }).then(response => response.json())
+    console.log(res);
+    return res;
+  },
+})
