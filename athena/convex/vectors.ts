@@ -2,13 +2,15 @@
 
 import { ConvexVectorStore } from "@langchain/community/vectorstores/convex";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 import { v } from "convex/values";
 import { Document } from "langchain/document";
 import { CacheBackedEmbeddings } from "langchain/embeddings/cache_backed";
 import { ConvexKVStore } from "langchain/storage/convex";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { YoutubeTranscript } from "youtube-transcript";
-import { action } from "./_generated/server";
+import { action, query, internalAction } from "./_generated/server";
+import { internal } from "./_generated/api";
 
 interface TranscriptResponse {
   text: string;
@@ -34,11 +36,12 @@ export const fetchAndEmbedSingle = action({
         (d: TranscriptResponse) =>
           new Document({ pageContent: d.text, metadata: { offset: d.offset } })
       )
-    );
+    ); 
 
     const embeddings = new CacheBackedEmbeddings({
-      underlyingEmbeddings: new OpenAIEmbeddings({
-        openAIApiKey: process.env.API_KEY,
+      underlyingEmbeddings: new TogetherAIEmbeddings({
+        apiKey: process.env.TOGETHER_AI_API_KEY,
+        modelName: "togethercomputer/m2-bert-80M-8k-retrieval",
       }),
       documentEmbeddingStore: new ConvexKVStore({ ctx }),
     });

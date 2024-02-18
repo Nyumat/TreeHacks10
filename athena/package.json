@@ -34,6 +34,7 @@
     "lucide-react": "^0.331.0",
     "next": "14.1.0",
     "next-themes": "^0.2.1",
+    "node-fetch": "^3.3.2",
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
