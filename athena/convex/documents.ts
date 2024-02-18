@@ -14,10 +14,24 @@ export const sendDoc = mutation({
     });
 
     //Send storage Id to the python server and get the embeddings
-    console.log(args.storageId);
+    const url = process.env.NEXT_PUBLIC_CONVEX_URL + "/api/storage/" + args.storageId;
+    console.log("Sending url to python server: " + url);
+
+    const response = await fetch("http://127.0.0.1:8000/upload-image/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: url,
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Embedding data", data);
 
     //Insert into the segements table
-
+    
     //insert into the documents table
   },
 });

@@ -50,7 +50,7 @@ export default defineSchema({
   
     //Temp table to store the url of the file upload for the python server to access
     temp: defineTable({
-      documentUrl: v.string(), // the url of the file upload
+      documentUrl: v.string(),
     })
     .index("documentUrl", ["documentUrl"]), // used to find specific file
 
