@@ -1,4 +1,3 @@
-import { Dashboard } from "@/(components)/preview-dash";
 import { User, currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 
